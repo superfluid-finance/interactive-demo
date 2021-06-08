@@ -13,7 +13,7 @@ import {
 
 contract StreamSender {
 
-    event NewClaim(address recipient, uint96 flowRate);
+    event NewClaim(address recipient, int96 flowRate);
 
     ISuperfluid public immutable host;
     IConstantFlowAgreementV1 public immutable cfa;
@@ -36,7 +36,7 @@ contract StreamSender {
         );
 
         host = _host;
-        ca = _cfa;
+        cfa = _cfa;
         token = _token;
     }
 
@@ -45,8 +45,11 @@ contract StreamSender {
 
         _recipients[recipient] = true;
         _counter++;
-
-        int96 flowRate = _getAmount();
+        int96 netFlow = cfa.getNetFlow(token, address(this));
+        int96 flowRate = netFlow / int96(int256(_counter));
+        if(flowRate == 0) {
+            flowRate = 100000000; //starting value
+        }
         host.callAgreement(
             cfa,
             abi.encodeWithSelector(
@@ -60,10 +63,5 @@ contract StreamSender {
         );
 
         emit NewClaim(recipient, flowRate);
-    }
-
-    function _getAmount() internal view returns(int96 flowRate) {
-        //TOOD: Define distribuion scheme
-        return 1;
     }
 }
