@@ -1,8 +1,33 @@
+import React, { useState } from "react";
+
 import styled from "styled-components";
 
 import "./App.css";
 
 function App() {
+  const [address, setAddress] = useState();
+
+  function claim() {
+    if (address) {
+      console.log("claiming stream for address", address);
+      fetch("/.netlify/functions/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log(data);
+          } else {
+            alert(data.reason);
+          }
+        });
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -24,8 +49,12 @@ function App() {
           <li>Follow Portis onboarding process to register an account</li>
           <li>
             Your account address:{" "}
-            <AddressInput id="claim_address_input" type="text" size="42" />
-            <Button>Claim</Button>
+            <AddressInput
+              onChange={e => setAddress(e.target.value)}
+              type="text"
+              size="42"
+            />
+            <Button onClick={claim}>Claim</Button>
           </li>
         </InstructionList>
       </header>
