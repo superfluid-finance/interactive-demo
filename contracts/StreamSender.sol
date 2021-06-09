@@ -11,15 +11,20 @@ import {
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 
 
+/**
+ * A simple stream sender contract for live Superfluid demo
+ */
 contract StreamSender {
 
     event NewClaim(address recipient, int96 flowRate);
 
+    // Superfluid framework addresses: https://docs.superfluid.finance/superfluid/networks/networks
     ISuperfluid public immutable host;
     IConstantFlowAgreementV1 public immutable cfa;
+    // Pick a super token to be used
     ISuperToken public immutable token;
-    int96 public immutable maxFlow;
-    int96 internal _lastFlow;
+    // Fixed flow rate for the participant
+    int96 internal immutable flowRate;
 
     mapping(address => bool) private _recipients;
 
@@ -27,7 +32,7 @@ contract StreamSender {
         ISuperfluid _host,
         IConstantFlowAgreementV1 _cfa,
         ISuperToken _token,
-        int96 _maxFlow
+        int96 _flowRate
     )
     {
         require(address(_host) != address(0), "SSender: host is empty");
@@ -41,30 +46,27 @@ contract StreamSender {
         host = _host;
         cfa = _cfa;
         token = _token;
-        maxFlow = _maxFlow;
+        flowRate = _flowRate;
     }
 
     function claim(address recipient) external {
-        require(!_recipients[recipient], "SSender: Already claim");
+        require(!_recipients[recipient], "StreamSender: Already claimed");
         _recipients[recipient] = true;
-        if(_lastFlow == 0) {
-            _lastFlow = maxFlow;
-        } else {
-            _lastFlow /= 2;
-            require(_lastFlow > 0, "SSender: no more money to send");
-        }
+        // send some gas token
+        this.send(recipient, 1e17 /* 0.1 */);
+        // send a flow
         host.callAgreement(
             cfa,
             abi.encodeWithSelector(
                 cfa.createFlow.selector,
                 token,
                 recipient,
-                _lastFlow,
+                flowRate,
                 new bytes(0)
             ),
             "0x"
         );
 
-        emit NewClaim(recipient, _lastFlow);
+        emit NewClaim(recipient, flowRate);
     }
 }
