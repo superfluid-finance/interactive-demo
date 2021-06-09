@@ -3,13 +3,18 @@ const ethers = require("ethers");
 
 exports.handler = async function(event, context) {
   try {
-    const { ADMIN_PRIVATE_KEY, PROVIDER_URL, SS_ADDRESS } = process.env;
+    const {
+      ADMIN_PRIVATE_KEY,
+      PROVIDER_URL,
+      SS_ADDRESS,
+      GAS_PRICE,
+    } = process.env;
     const body = JSON.parse(event.body);
     const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
     const wallet = new ethers.Wallet(ADMIN_PRIVATE_KEY);
     const ss = new ethers.Contract(SS_ADDRESS, ABI, wallet.connect(provider));
     const tx = await ss.claim(body.address, {
-      gasPrice: 1000e6,
+      gasPrice: GAS_PRICE,
     });
     console.log(tx);
     return {
