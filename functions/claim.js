@@ -1,4 +1,4 @@
-const ABI = require("../contracts/abi/StreamSender.abi");
+const ABI = require("../contracts/abi/StreamSender.json");
 const ethers = require("ethers");
 
 exports.handler = async function(event, context) {
