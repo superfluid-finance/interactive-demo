@@ -9,7 +9,7 @@ exports.handler = async function(event, context) {
     const wallet = new ethers.Wallet(ADMIN_PRIVATE_KEY);
     const ss = new ethers.Contract(SS_ADDRESS, ABI, wallet.connect(provider));
     const tx = await ss.claim(body.address, {
-      gasPrice: 100e6,
+      gasPrice: 1000e6,
     });
     console.log(tx);
     return {
