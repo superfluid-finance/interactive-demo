@@ -1,73 +1,62 @@
 [
 	{
-		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
+				"internalType": "contract ISuperfluid",
+				"name": "_host",
 				"type": "address"
 			},
 			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
+				"internalType": "contract IConstantFlowAgreementV1",
+				"name": "_cfa",
 				"type": "address"
 			},
 			{
-				"indexed": false,
+				"internalType": "contract ISuperToken",
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"internalType": "int96",
+				"name": "_flowRate",
+				"type": "int96"
+			},
+			{
 				"internalType": "uint256",
-				"name": "value",
+				"name": "_maxParticipants",
 				"type": "uint256"
 			}
 		],
-		"name": "Approval",
-		"type": "event"
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
+				"indexed": false,
 				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
+				"name": "recipient",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
+				"internalType": "int96",
+				"name": "flowRate",
+				"type": "int96"
 			}
 		],
-		"name": "Transfer",
+		"name": "NewClaim",
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			}
-		],
-		"name": "allowance",
+		"inputs": [],
+		"name": "cfa",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "contract IConstantFlowAgreementV1",
 				"name": "",
-				"type": "uint256"
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -76,36 +65,32 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "spender",
+				"internalType": "address payable",
+				"name": "recipient",
 				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
 			}
 		],
-		"name": "approve",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"name": "claim",
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [
+		"inputs": [],
+		"name": "host",
+		"outputs": [
 			{
-				"internalType": "address",
-				"name": "account",
+				"internalType": "contract ISuperfluid",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "balanceOf",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "maxParticipants",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -118,7 +103,20 @@
 	},
 	{
 		"inputs": [],
-		"name": "totalSupply",
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "participants",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -130,56 +128,27 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "recipient",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "transfer",
+		"inputs": [],
+		"name": "token",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "contract ISuperToken",
 				"name": "",
-				"type": "bool"
+				"type": "address"
 			}
 		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "recipient",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]
