@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity 0.8.4;
 
 import {
     ISuperfluid,
@@ -25,6 +25,10 @@ contract StreamSender {
     ISuperToken public immutable token;
     // Fixed flow rate for the participant
     int96 internal immutable flowRate;
+    // Fixed number of possible participants
+    uint256 public immutable maxParticipants;
+    uint256 public participants;
+    address public owner;
 
     mapping(address => bool) private _recipients;
 
@@ -32,7 +36,8 @@ contract StreamSender {
         ISuperfluid _host,
         IConstantFlowAgreementV1 _cfa,
         ISuperToken _token,
-        int96 _flowRate
+        int96 _flowRate,
+        uint256 _maxParticipants
     )
     {
         require(address(_host) != address(0), "SSender: host is empty");
@@ -41,19 +46,22 @@ contract StreamSender {
             address(_token) != address(0),
             "SSender: superToken is empty"
         );
-        require(_maxFlow > 0, "SSender: maxFlow");
 
         host = _host;
         cfa = _cfa;
         token = _token;
         flowRate = _flowRate;
+        maxParticipants = _maxParticipants;
+        owner = msg.sender;
     }
 
-    function claim(address recipient) external {
+    function claim(address payable recipient) external {
         require(!_recipients[recipient], "StreamSender: Already claimed");
         _recipients[recipient] = true;
+        participants++;
+        require(participants <= maxParticipants, "SSender: max out number of participants");
         // send some gas token
-        this.send(recipient, 1e17 /* 0.1 */);
+        recipient.send( 1e17 /* 0.1 */);
         // send a flow
         host.callAgreement(
             cfa,
@@ -68,5 +76,13 @@ contract StreamSender {
         );
 
         emit NewClaim(recipient, flowRate);
+    }
+
+    function withdraw() external {
+        require(msg.sender == owner, "SSender: not owner");
+        payable(msg.sender).send(address(this).balance);
+    }
+    
+    receive() external payable {
     }
 }
