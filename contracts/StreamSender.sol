@@ -18,14 +18,16 @@ contract StreamSender {
     ISuperfluid public immutable host;
     IConstantFlowAgreementV1 public immutable cfa;
     ISuperToken public immutable token;
+    int96 public immutable maxFlow;
+    int96 internal _lastFlow;
 
     mapping(address => bool) private _recipients;
-    uint256 private _counter;
 
     constructor(
         ISuperfluid _host,
         IConstantFlowAgreementV1 _cfa,
-        ISuperToken _token
+        ISuperToken _token,
+        int96 _maxFlow
     )
     {
         require(address(_host) != address(0), "SSender: host is empty");
@@ -34,21 +36,22 @@ contract StreamSender {
             address(_token) != address(0),
             "SSender: superToken is empty"
         );
+        require(_maxFlow > 0, "SSender: maxFlow");
 
         host = _host;
         cfa = _cfa;
         token = _token;
+        maxFlow = _maxFlow;
     }
 
     function claim(address recipient) external {
         require(!_recipients[recipient], "SSender: Already claim");
-
         _recipients[recipient] = true;
-        _counter++;
-        int96 netFlow = cfa.getNetFlow(token, address(this));
-        int96 flowRate = netFlow / int96(int256(_counter));
-        if(flowRate == 0) {
-            flowRate = 100000000; //starting value
+        if(_lastFlow == 0) {
+            _lastFlow = maxFlow;
+        } else {
+            _lastFlow /= 2;
+            require(_lastFlow > 0, "SSender: no more money to send");
         }
         host.callAgreement(
             cfa,
@@ -56,12 +59,12 @@ contract StreamSender {
                 cfa.createFlow.selector,
                 token,
                 recipient,
-                flowRate,
+                _lastFlow,
                 new bytes(0)
             ),
             "0x"
         );
 
-        emit NewClaim(recipient, flowRate);
+        emit NewClaim(recipient, _lastFlow);
     }
 }
