@@ -8,7 +8,9 @@ exports.handler = async function(event, context) {
     const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
     const wallet = new ethers.Wallet(ADMIN_PRIVATE_KEY);
     const ss = new ethers.Contract(SS_ADDRESS, ABI, wallet.connect(provider));
-    const tx = await ss.claim(body.address);
+    const tx = await ss.claim(body.address, {
+      gasPrice: 100e6,
+    });
     console.log(tx);
     return {
       statusCode: 200,

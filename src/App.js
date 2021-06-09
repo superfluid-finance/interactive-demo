@@ -20,7 +20,7 @@ function App() {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            console.log(data);
+            console.log(JSON.parse(data.body));
           } else {
             alert(data.reason);
           }
